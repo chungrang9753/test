@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Header</title>
+</head>
+<body>
+<form>
+  <fieldset>
+		<legend>송신정보</legend>
+      식별자 : <input type="txt"><br>
+      송신자 : <input type="txt"><br>
+    <table>
+<tr><td>송신시간</td>
+	<td><input type="date" value="2000-05-20"></td></tr>
+	<td><input type="time"></td></tr>
+    </table>
+	</fieldset>
+  
+<fieldset>
+		<legend>정보업무</legend>
+      문서용도 : 
+        <select name="select-status" id="select-status" data-mini="true" 
+                data-inline="true" onchange="view2model()">
+			<option value="Actual">실제</option>
+		    <option value="Exercise">연습</option>
+		    <option value="Test">시험</option>
+		    <option value="Draft">초안</option>
+		</select>
+			</select><br>
+문서용도 : 
+        <select name="select-msgType" id="select-msgType" data-mini="true" 
+                data-inline="true" onchange="view2model()">
+		  <option value="Alert">경계</option>
+		  <option value="Update">업데이트</option>
+		  <option value="Cancel">취소</option>
+		</select></select><br>
+  참조 : <input type="txt"><br>
+    노트 : <input type="txt"><br>
+	</fieldset>  
+  
+<fieldset>
+		<legend>시간정보</legend>
+      수신대상 : <select name="select-status" id="select-status" data-mini="true" 
+                data-inline="true" onchange="view2model()">
+			<option value="Public">공공의</option>
+			    <option value="Restricted">제한된</option>
+			    <option value="Private">사적인</option>
+		</select><br>
+      특수수신자 : <input type="txt"><br>
+      주소 : <input type="txt"><br>
+	</fieldset>
+
+<fieldset>
+		<legend>기타</legend>
+      근거 : <input type="txt"><br>
+      처리코드 : <input type="txt"><br>
+      사건이름 : <input type="txt"><br>
+	</fieldset>
+<hr>
+  <input type="button" value="완료">
+  
+  
+</form>
+</body>
+</html>

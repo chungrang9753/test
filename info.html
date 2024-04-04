@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>info</title>
+</head>
+<body>
+  <form>
+    <fieldset>
+		<legend>사용언어</legend>
+		<select name="select-language" id="select-language" data-mini="true"
+                 data-inline="true"onchange="view2model()">
+				<option value="en-us">언어</option>
+			    <option value="en-us">영어 (US)</option>
+			</select> <br>
+	</fieldset>
+    <fieldset>
+		<legend>재난관련정보</legend>
+		대분류 : <select name="select-categories" id="select-categories" data-mini="true" data-native-menu="false" onchange="view2model()">
+				<option value="Other">--위험 경우--</option>
+				<option value="Geo">지질</option>
+			    <option value="Met">기상</option>
+			    <option value="Safety">대중 위기상황</option>
+			    <option value="Security">국가안보관련</option>
+			    <option value="Rescue">구조</option>
+			    <option value="Fire">화재</option>
+			    <option value="Health">의료</option>
+			    <option value="Env">환경오염사고</option>
+			    <option value="Transport">교통사고</option>
+			    <option value="Infra">국가기반체계/유용성</option>
+			    <option value="CBRNE">대량살상의 화학무기</option>
+			    <option value="Other">해당사핳이 없는 경우</option>
+			</select><br>
+      재난유형 : <input type="txt"><br>
+      재난코드 : <input type="txt"><br>
+      제목 : <input type="txt"><br>
+      재난정보 : <input type="txt"><br>
+      피해지역 : <input type="txt"><br>
+      수신대상 : <input type="txt"><br>
+	</fieldset>
+    
+    <fieldset>
+		<legend>시간정보</legend>
+      발령시간 : <input type="txt"><br>
+      위험발생시간 : <input type="txt"><br>
+      경보만료시간 : <input type="txt"><br>
+	</fieldset>
+    
+    <fieldset>
+		<legend>경보중요도</legend>
+		대응긴급성 : <select name="select-categories" id="select-categories" data-mini="true" data-native-menu="false" onchange="view2model()">
+				<option value="Unknown">-대응긴급성-</option>
+				<option value="Immediate">즉각적인 대응 필요</option>
+			    <option value="Expected">한시간내 대응 필요</option>
+			    <option value="Future">근시일내 대응 필요</option>
+			    <option value="Past">대응 필요없음</option>
+			    <option value="Unknown">미상</option>
+			</select><br>
+      예상피해 : <select name="select-categories" id="select-categories" data-mini="true" data-native-menu="false" onchange="view2model()">
+				<option value="Unknown">-예상피해-</option>
+				<option value="Extreme">이례적인 피해</option>
+			    <option value="Severe">심각한 피해</option>
+			    <option value="Moderate">피해 가능성 존재</option>
+			    <option value="Minor">피해 가능성 낮음</option>
+			    <option value="Unknown">미상</option>
+			</select><br>
+      발생확률 : <select name="select-categories" id="select-categories" data-mini="true" data-native-menu="false" onchange="view2model()">
+				<option value="Unknown">-발생확률-</option>
+				<option value="Observed">사전이 이미 발생했거나 진행중</option>
+			    <option value="Likely">50% 초과 가능성</option>
+			    <option value="Possible">50% 이하 가능성</option>
+			    <option value="Unlikely">희박한 가능성</option>
+			    <option value="Unknown">미상</option>
+			</select><br>
+	</fieldset>
+    
+    <fieldset>
+		<legend>대응관련</legend>
+		<label for="select-responseTypes" class="ui-hidden-accessible">대응유형</label>
+			<select name="select-responseTypes" id="select-responseTypes" data-mini="true" data-native-menu="false" onchange="view2model()">
+				<option value="None">--대응방안--</option>
+				<option value="Shelter">피난처 대피</option>
+			    <option value="Evacuate">피난</option>
+			    <option value="Prepare">대응 준비</option>
+			    <option value="Execute">예비계획작전 실행</option>
+			    <option value="Avoid">지역 대피</option>
+			    <option value="Monitor">조건 감시</option>
+			    <option value="AllClear">정상활동 개시</option>
+			    <option value="None">행동취하지 않기</option>
+			    <option value="Assess">상황 평가 [대중 경보 제외]</option>
+			</select>	<br>
+      대응요령 : <input type="txt"><br>
+	</fieldset>
+    <fieldset>
+		<legend>추가정보</legend>
+      파라미터 : <input type="txt"><br>
+      추가정보 : <input type="txt"><br>
+      웹링크 : <input type="txt"><br>
+	</fieldset>
+    <fieldset>
+		<legend>발령자(행정)관련</legend>
+      발령자 : <input type="txt"><br>
+      담당자 : <input type="txt"><br>
+	</fieldset>
+    <hr>
+    
+    
+  </form>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quick Start - Leaflet</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="docs/images/favicon.ico"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+      crossorigin=""
+    ></script>
+  </head>
+  <body>
+    <div id="mapid" style="width: 600px; height: 400px"></div>
+    <script>
+      var mymap = L.map("mapid").setView([51.505, -0.09], 13);
+
+      L.tileLayer(
+        "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
+        {
+          maxZoom: 18,
+          attribution:
+            'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+            '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+          id: "mapbox/streets-v11",
+          tileSize: 512,
+          zoomOffset: -1,
+        }
+      ).addTo(mymap);
+
+      L.marker([37.583041, 127.056988])
+        .addTo(mymap)
+        .bindPopup("<b>Hello world!</b><br />hello school!!.")
+        .openPopup();
+      
+      L.marker([37.363594, 127.12788])
+        .addTo(mymap)
+        .bindPopup("<b>Hello world!</b><br />My home!!.")
+        .openPopup();
+
+      L.circle([ 37.570554, 127.00929], 1500, {
+        color: "red",
+        fillColor: "#f03",
+        fillOpacity: 0.5,
+      })
+        .addTo(mymap)
+        .bindPopup("I am a circle.");
+  L.polygon([
+        [ 37.586544, 127.056945],
+        [37.58481, 127.055721],
+        [37.584657, 127.054799],
+    [37.581494, 127.05643],
+    [37.579266, 127.056928],
+    [37.582208, 127.062411],
+    [37.578392, 127.060554],
+    
+    [ 37.578946, 127.066726],
+    [ 37.587132, 127.066155],
+    [ 37.586544, 127.056945]
+      ])
+        .addTo(mymap)
+        .bindPopup("I am a polygon.");
+    
+
+      var popup = L.popup();
+
+      function onMapClick(e) {
+        popup
+          .setLatLng(e.latlng)
+          .setContent("You clicked the map at " + e.latlng.toString())
+          .openOn(mymap);
+      }
+
+      mymap.on("click", onMapClick);
+    </script>
+  </body>
+</html>
