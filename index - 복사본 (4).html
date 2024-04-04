@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<!-- 
+	CAPCreator -- Common Alerting Protocol 1.2 composition tool
+	version 0.9.2 - 2 December 2013
+	
+	Copyright (c) 2013, Carnegie Mellon University 
+	All rights reserved.
+
+	See LICENSE.txt for license terms (Modified BSD) 
+ -->
+ 
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<link rel="stylesheet" href="css/jquery.mobile-1.3.0.min.css" />
+    <link rel="stylesheet" href="css/CAPCreator.css" type="text/css">
+    
+	<script src="js/jquery-1.10.2.min.js"></script>
+	<script src="js/jquery.mobile-1.3.0.min.js"></script>
+	<script src="js/OpenLayers.js"></script>
+	<script src="js/moment.min.js"></script>
+	<script src="https://maps.google.com/maps/api/js?v=3.7&amp;sensor=false"></script>
+		
+	<script src="js/config.js"></script>
+	<script src="js/caplib.js"></script>
+    <script src="js/cap_map.js"></script>
+	<script src="js/widgets.js"></script>
+	<script src="js/CAPCreator.js"></script>
+	
+	<title>CAPCreator</title>	
+</head>
+
+<body>
+
+<!-- CURRENT ALERTS VIEW -->
+<div data-role="page" id="current">
+
+    <div data-role="header" class="jqm-header" data-position="fixed">
+    	<span class="page_label">최근경보</span>&nbsp;&nbsp;&nbsp;<span class="tm"></span>
+    </div><!-- /header -->
+    
+    <div data-role="content" class="jqm-content" >
+    
+       	<div id="current_alerts_div"><span id="current_alerts_span"></span></div>
+       	
+       	<a href="#alert" data-role="button" data-mini="true" class="ui-mini-smaller" data-icon="arrow-r" 
+ 			data-iconpos="right" style="whitespace:normal; width:200px" >새 경보 표시</a>
+ 			
+ 		<div id="alert_view_div" data-role="popup" data-mini="true" data-position-to="#current_alerts_div" class="ui-content">
+ 		<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">닫기</a>
+ 			<span id="alert_view_span"></span>
+ 			<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" >
+	 			<input type="button" id="update_button" name="update_button" data-mini="true" value="Update This Alert" 
+	 				style="whitespace:normal; width:140px"/>
+	 			<input type="button" id="cancel_button" name="cancel_button" data-mini="true" value="Cancel This Alert" 
+	 				style="whitespace:normal; width:140px"/>
+ 			</fieldset>
+ 		</div>
+ 		
+ 		
+ 		</br>
+ 		<a href="#popup-about" data-rel="popup" data-role="button" data-mini="true" class="ui-mini" style="width:200px; font-style:italic; font-weight:normal">About CAPCreator&trade;</a>
+ 		<div class="about_div" id="popup-about" data-role="popup" data-mini="true">
+ 		<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">닫기</a>
+ 			<h3>CAP제작자에 대해</h3>
+	    	<span id="alert-info" class="info_block">
+		    	<b>CAPCreator&trade;</b> is a simple tool for authoring alerts and other messages using the 
+		    	<a href="http://docs.oasis-open.org/emergency/cap/v1.2/CAP-v1.2-os.html" target="_blank">Common Alerting Protocol (v1.2)</a>. 
+		    	A few noteworthy restrictions on the current version:
+		    	<ul>
+		    		<li>Only one language can be used in a single message (however multiple messages can be authored to address multilingual
+		    		 alerting requirements);
+		    		<li>Only one target area can be specified for an individual alert message (but it may include multiple polygons and/or circles); 
+		    		and,
+		    		<li>Messages are assumed to be effective immediately.
+		    	</ul>
+		    	<p><b>CAPCreator</b> is designed to integrate with the <b>CAPCollector&trade;</b> 
+		    	server for XML serialization, sender authentication, digital signature, alert forwarding and local alert aggregation, and the
+		    	<b>CAPConsumer&trade;</b> framework for CAP message injestion and display.</p>
+		    	<p><b>CAPCreator</b>, <b>CAPCollector</b> and <b>CAPConsumer</b> are open source projects copyright Carnegie Mellon University 
+		    	and published under the Modified (3-clause) BSD License.  See source files for full copyright and licensing notices.  
+		    	<b>CAPCreator</b>, <b>CAPCollector</b> and <b>CAPConsumer</b> are trademarks of Carnegie Mellon University.</p>
+	    	</span>
+	    </div>			
+ 		 	
+    </div><!-- /content -->
+    
+    <div data-role="footer" data-id="cc_nav" data-position="fixed">
+		<div data-role="navbar" >
+			<ul>
+				<li><a href="#current" data-prefetch="true" data-transition="none" class="ui-btn-active ui-state-persist">Current</a></li>
+				<li><a href="#alert" data-prefetch="true" data-transition="none" >새것</a></li>
+				<li><a href="#info" data-prefetch="true" data-transition="none">메세지</a></li>
+				<li><a href="#area" data-prefetch="true" data-transition="none">지역</a></li>
+				<li><a href="#release" data-prefetch="true" data-transition="none">보내기</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+
+</div><!-- /page #current-->
+
+
+<!-- ALERT BLOCK -->
+<div data-role="page" id="alert">
+
+    <div data-role="header" class="jqm-header" data-position="fixed">
+    	<span class="page_label">새 경보</span>&nbsp;&nbsp;&nbsp;<span class="tm"></span>
+    	 <div style="float:right;height:5px; margin-right:20px">
+		    <select name="select-language" id="select-language" data-mini="true" data-inline="true" style="float:left" onchange="view2model()">
+				<option value="en-us">언어</option>
+			    <option value="en-us">영어 (US)</option>
+			</select>
+		</div>
+    	
+    </div><!-- /header -->
+
+    <div data-role="content" class="jqm-content" >
+    
+    	<label class="field_label">메세지 안내 (선택):</label>
+	    <select name="select-message-template" id="select-message-template" data-mini="true" data-inline="true" onchange="loadMessageTemplate()">
+			<option value="None">없음</option>
+		</select>
+
+    	<div class="form_row_div">
+    	<label class="field_label" >메세지 유형:</label>
+    	<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">  
+	    	<label for="select-status" class="ui-hidden-accessible">상태</label>
+		    <select name="select-status" id="select-status" data-mini="true" data-inline="true" onchange="view2model()">
+				<option value="Actual">실제</option>
+			    <option value="Exercise">연습</option>
+			    <option value="Test">시험</option>
+			    <option value="Draft">초안</option>
+			</select>
+			<label for="select-msgType" class="ui-hidden-accessible">Type</label>
+			<select name="select-msgType" id="select-msgType" data-mini="true" data-inline="true" onchange="view2model()">
+				<option value="Alert">경계</option>
+			    <option value="Update">업데이트</option>
+			    <option value="Cancel">취소</option>
+			</select>
+			<label for="select-scope" class="ui-hidden-accessible">Scope</label>
+			<select name="select-scope" id="select-scope" data-mini="true" data-inline="true" onchange="view2model()">
+				<option value="Public">공공의</option>
+			    <option value="Restricted">제한된</option>
+			    <option value="Private">사적인</option>
+			</select>
+		</fieldset>
+		</div>
+		
+		<div class="form_row_div">
+		<label class="field_label">위험 타입 설정과 추천 대비방안:</label>
+    	<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" >
+    		<label for="select-categories" class="ui-hidden-accessible">위험 경우 설정</label>
+			<select name="select-categories" id="select-categories" data-mini="true" data-native-menu="false" onchange="view2model()">
+				<option value="Other">--위험 경우--</option>
+				<option value="Geo">지질</option>
+			    <option value="Met">기상</option>
+			    <option value="Safety">대중 위기상황</option>
+			    <option value="Security">국가안보관련</option>
+			    <option value="Rescue">구조</option>
+			    <option value="Fire">화재</option>
+			    <option value="Health">의료</option>
+			    <option value="Env">환경오염사고</option>
+			    <option value="Transport">교통사고</option>
+			    <option value="Infra">국가기반체계/유용성</option>
+			    <option value="CBRNE">Weapon of Mass 화생방사고</option>
+			    <option value="Other">해당사핳이 없는 경우</option>
+			</select>
+			<label for="select-responseTypes" class="ui-hidden-accessible">대응유형</label>
+			<select name="select-responseTypes" id="select-responseTypes" data-mini="true" data-native-menu="false" onchange="view2model()">
+				<option value="None">--대응방안--</option>
+				<option value="Shelter">피난처 대피</option>
+			    <option value="Evacuate">피난</option>
+			    <option value="Prepare">대응 준비</option>
+			    <option value="Execute">예비계획작전 실행</option>
+			    <option value="Avoid">지역 대피</option>
+			    <option value="Monitor">조건 감시</option>
+			    <option value="AllClear">정상활동 개시</option>
+			    <option value="None">행동취하지 않기</option>
+			    <option value="Assess">상황 평가 [대중 경보 제외]</option>
+			</select>	
+		</fieldset>
+		</div>
+		
+		<div class="form_row_div">
+		<label class="field_label" >메세지 우선도 설정:</label>
+		<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" >
+    		<label for="select-urgency" class="ui-hidden-accessible">대응긴급성</label>
+			<select name="select-urgency" id="select-urgency" data-mini="true" data-inline="true" onchange="view2model()">
+				<option value="Unknown">-대응긴급성-</option>
+				<option value="Immediate">즉각적인 대응 필요</option>
+			    <option value="Expected">한시간내 대응 필요</option>
+			    <option value="Future">근시일내 대응 필요</option>
+			    <option value="Past">대응 필요없음</option>
+			    <option value="Unknown">미상</option>
+			</select>
+			<label for="select-severity" class="ui-hidden-accessible">예상피해</label>
+			<select name="select-severity" id="select-severity" data-mini="true" data-inline="true" onchange="view2model()">
+				<option value="Unknown">-예상피해-</option>
+				<option value="Extreme">이례적인 피해</option>
+			    <option value="Severe">심각한 피해</option>
+			    <option value="Moderate">피해 가능성 존재</option>
+			    <option value="Minor">피해 가능성 낮음</option>
+			    <option value="Unknown">미상</option>
+			</select>
+			<label for="select-certainty" class="ui-hidden-accessible">발생확률</label>
+			<select name="select-certainty" id="select-certainty" data-mini="true" data-inline="true" onchange="view2model()">
+				<option value="Unknown">-발생확률-</option>
+				<option value="Observed">사전이 이미 발생했거나 진행중</option>
+			    <option value="Likely">50% 초과 가능성</option>
+			    <option value="Possible">50% 이하 가능성</option>
+			    <option value="Unlikely">희박한 가능성</option>
+			    <option value="Unknown">미상</option>
+			</select>
+		</fieldset>
+		</div>
+		
+		<div class="form_row_div">
+		<label class="field_label" >경보 만기 설정</label>
+		<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" >
+    		<label for="select-expires-min" class="ui-hidden-accessible">만기 시간</label>
+			<select name="select-expires-min" id="select-expires-min" data-mini="true" data-inline="true" onchange="view2model()">
+				<option value="60">- 효율적인 주기 (from now) -</option>
+				<option value="15">15분</option>
+			    <option value="30">30분</option>
+			    <option value="45">45분</option>
+			    <option value="60">1시간</option>
+			    <option value="90">90분</option>
+			    <option value="120">2시간</option>
+			    <option value="180">3시간</option>
+			    <option value="240">4시간</option>
+			    <option value="300">5시간</option>
+			    <option value="360">6시간</option>
+			</select>
+		</fieldset>	
+		</div>
+		<input type="hidden" id="hidden-references" name="hidden-references" value="" />
+		
+		<br>	
+		
+		<a href="#info" data-role="button" data-mini="true" class="ui-mini" data-icon="arrow-r" 
+ 			data-iconpos="right" style="whitespace:normal; width:200px" >다음: 세부 경보 설정</a>
+ 			
+ 		    		
+    </div><!-- /content -->
+
+	<div data-role="footer" data-id="cc_nav" data-position="fixed">
+		<div data-role="navbar" >
+			<ul>
+				<li><a href="#current" data-prefetch="true" data-transition="none">현재</a></li>
+				<li><a href="#alert" data-prefetch="true" data-transition="none" class="ui-btn-active ui-state-persist">New</a></li>
+				<li><a href="#info" data-prefetch="true" data-transition="none">메세지</a></li>
+				<li><a href="#area" data-prefetch="true" data-transition="none">지역</a></li>
+				<li><a href="#release" data-prefetch="true" data-transition="none">보내기</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+
+</div><!-- /page #alert-->
+
+
+<!-- INFO BLOCK -->
+<div data-role="page" id="info">
+
+    <div data-role="header" class="jqm-header" data-position="fixed">
+		<span class="page_label">경보 세부사항</span>&nbsp;&nbsp;&nbsp;<span class="tm"/>
+    </div><!-- /header -->
+
+    <div data-role="content" class="jqm-content">
+    
+     
+    	<div >
+			<label class="field_label">경보 알리는 사람:</label>
+			<input type="text" name="text-senderName" id="text-senderName" data-mini="true" placeholder="" value="" onchange="view2model()">
+		</div>
+		
+		<div class="form_row_div">
+			<label class="field_label">중심내용 (필수):&nbsp;&nbsp;<span id="headline_length">(<span id="headline_counter">140</span> characters left)</span></label>
+			<input type="text" name="text-headline" id="text-headline" data-mini="true" placeholder="Required - 140 characters maximum" value="" onchange="view2model()">
+		</div>
+		
+		<div class="form_row_div">
+			<label class="field_label" >현장이나 재난 묘사:</label>
+ 			<textarea name="textarea-description" id="textarea-description" data-mini="true" placeholder="" onchange="view2model()"></textarea>
+ 		</div>
+    
+    	<div class="form_row_div">
+    		<label class="field_label" >사람들에게 영행 끼치는 것:</label>
+ 			<textarea name="textarea-instruction" id="textarea-instruction" data-mini="true" placeholder="" onchange="view2model()"></textarea>
+ 		</div>
+ 		
+ 		<div class="form_row_div">
+ 			<label class="field_label" >미디어 접촉자:</label>
+ 			<input type="text" name="text-contact" id="text-contact" data-mini="true" placeholder="Include telephone and/or email" value="" onchange="view2model()">
+ 		</div>
+ 		
+ 		<div id="parameter_div" class="form_row_div"></div>
+ 		
+ 		<!-- 
+ 		
+ 		<div class="form_row_div">
+			<label class="field_label">Issuing Officer/Office Identifier (optional):</label>
+			<input type="text" name="text-source" id="text-source" data-mini="true" value="" onchange="view2model()">
+		</div>
+		
+		<div class="form_row_div" style="clear:both;">
+			<label class="field_label">Technical Note (optional):</label>
+			<textarea cols="40" rows="6" name="textarea-note" id="textarea-note" data-mini="true" onchange="view2model()"></textarea>
+		</div>	
+		
+		 -->
+		
+		<br>
+ 		
+ 		<a href="#area" data-role="button" data-mini="true" class="ui-mini-smaller" data-icon="arrow-r" 
+ 			data-iconpos="right" style="whitespace:normal; margin-top:8px; width:160px" >다음: 목표 지역</a>
+
+    </div><!-- /content -->
+
+	<div data-role="footer" data-id="cc_nav" data-position="fixed">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#current" data-prefetch="true" data-transition="none">현재</a></li>
+				<li><a href="#alert" data-prefetch="true" data-transition="none" >새것</a></li>
+				<li><a href="#info" data-prefetch="true" data-transition="none" class="ui-btn-active ui-state-persist">Message</a></li>
+				<li><a href="#area" data-prefetch="true" data-transition="none">지역</a></li>
+				<li><a href="#release" data-prefetch="true" data-transition="none">보내기</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+
+</div><!-- /page #info-->
+
+
+<!-- AREA BLOCK -->
+<div data-role="page"  id="area">
+
+    <div data-role="header" class="jqm-header" data-position="fixed">
+    	<span class="page_label">경보 지역</span>&nbsp;&nbsp;&nbsp;<span class="tm"/>
+    </div><!-- /header -->
+
+    <div data-role="content" data-role="content" class="jqm-content">
+    
+    	<select name="select-area-template" id="select-area-template" data-mini="true" data-inline="true" onchange="loadAreaTemplate()">
+			<option value="None">견본 지역 선택 (선택)</option>
+		</select>
+           
+		<label class="field_label">경보지역 묘사 (필수):</label>
+		<textarea name="textarea-areaDesc" id="textarea-areaDesc" data-mini="true" placeholder="" onchange="view2model()"></textarea>
+			
+		<div id="map_panel">
+       		<div id="map" class="largemap" ></div>
+       	    <div id="radius"></div>
+       	</div>
+       
+		<div id="mode_panel">
+       		<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" data-inline="true">
+        		<input type="radio" name="map_mode" value="none" id="noneToggle" onclick="clearPrompt(); toggleControl(this);" checked="checked" />
+        		<label for="noneToggle">드래그</label>
+        		<input type="radio" name="map_mode" value="circle" id="circleToggle" onclick="toggleControl(this);" />
+        		<label for="circleToggle">원</label>
+        		<input type="radio" name="map_mode" value="polygon" id="polygonToggle" onclick="showPrompt(); toggleControl(this);" class="ui-mini-smaller"/>
+       			<label for="polygonToggle">모양</label>
+       			<a onclick="clearLast()" data-role="button" class="ui-mini-smaller">리스트 초기화</a>
+        		<a onclick="clearAll()" data-role="button" class="ui-mini-smaller">전부 초기화</a>
+  			</fieldset>
+       	</div>
+
+  		<div id="geocode_div"></div>
+  		
+  		<a href="#release" type="button" data-mini="true" class="ui-mini-smaller" data-icon="arrow-r" 
+				data-iconpos="right" style="whitespace:normal; margin-top:8px; width:200px" >다음: Review &amp; Release</a>
+
+	</div><!-- /content -->
+
+	<div data-role="footer" data-id="cc_nav" data-position="fixed">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#current" data-prefetch="true" data-transition="none">현재</a></li>
+				<li><a href="#alert" data-prefetch="true" data-transition="none" >새것</a></li>
+				<li><a href="#info" data-prefetch="true" data-transition="none">메세지</a></li>
+				<li><a href="#area" data-prefetch="true" data-transition="none" class="ui-btn-active ui-state-persist">지역</a></li>
+				<li><a href="#release" data-prefetch="true" data-transition="none">보내기</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+
+</div><!--  /page  #area -->
+
+
+<!-- REVIEW AND RELEASE -->
+<div data-role="page" id="release">
+
+    <div data-role="header" class="jqm-header" data-position="fixed">
+		<span class="page_label">Review &amp; Release</span>&nbsp;&nbsp;&nbsp;<span class="tm"/>
+    </div><!-- /header -->
+
+    <div data-role="content" class="jqm-content">
+    
+   	    <label class="field_label" style="margin-top 15px; margin-left:8px">메세지 내용 다시 보기:</label>
+		<div id="review_div"><pre><span id="review_span"></span></pre></div>
+		
+		<div id="release_div" data-role="collapsible" data-collapsed="false">
+			<label class="field_label" style="margin-top 15px; margin-left:8px">권한 보내기:</label>
+		    <input type="text" name="text-uid" id="text-uid" data-mini="true" placeholder="User ID" width="20" value="">
+		    <input type="password" name="text-pwd" id="text-pwd" data-mini="true" placeholder="Password" value="">
+	    	<a onclick="sendAlert();" data-role="button" data-mini="true" data-icon="check" class="ui-mini-smaller" style="width:180px; margin-top:8px">경보 보내기</a>
+    	</div>
+    	
+    	<span id="response_span"></span>
+    	
+    </div><!-- /content -->
+
+	<div data-role="footer" data-id="cc_nav" data-position="fixed">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#current" data-prefetch="true" data-transition="none">현재</a></li>
+				<li><a href="#alert" data-prefetch="true" data-transition="none" >새것</a></li>
+				<li><a href="#info" data-prefetch="true" data-transition="none" >메세지</a></li>
+				<li><a href="#area" data-prefetch="true" data-transition="none">지역</a></li>
+				<li><a href="#release" data-prefetch="true" data-transition="none" class="ui-btn-active ui-state-persist">보내기</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /footer -->
+
+</div><!-- /page #release-->
+
+
+</body>
+</html>
